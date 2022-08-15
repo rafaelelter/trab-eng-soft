@@ -128,3 +128,5 @@ LOGIN_REDIRECT_URL = "/tickets"
 LOGOUT_REDIRECT_URL = "/tickets"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+STATIC_URL = '/static/'
