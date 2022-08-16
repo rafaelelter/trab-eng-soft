@@ -38,7 +38,7 @@ def signup_offerer(request):
         u_form = CreationForm(request.POST)
         p_form = OffererProfileForm(request.POST)
         if u_form.is_valid() and p_form.is_valid():
-            user_group = Group.objects.get(name="offerer")
+            user_group = Group.objects.get(name="unapproved_offerer")
             user = u_form.save(user_group=user_group)
             profile = p_form.save(user=user)
 
