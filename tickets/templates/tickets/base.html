@@ -32,11 +32,16 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{% url 'index' %}">Home</a>
+              <a class="nav-item nav-link" href="{% url 'search' %}">Buscar ofertador</a>
+              {% if user|has_group:"offerer" %}
+              <a class="nav-item nav-link" href="{% url 'new-ticket' %}">Criar Ticket</a>
+              {% endif %}
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if user.is_authenticated %}
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                <em class="nav-item nav-link">Loged as {{user.username}}</em>
               {% else %}
                 <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
                 <a class="nav-item nav-link" href="{% url 'signup' %}">Register</a>

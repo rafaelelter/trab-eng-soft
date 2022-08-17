@@ -1,0 +1,36 @@
+{% extends "tickets/base.html" %}
+{% load crispy_forms_tags %}
+{% load auth_extras %}
+{% block content %}
+
+<div class="content-section">
+    <h1>{{ offerer.user.username }}</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Imagem</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in offerer.ticket_set.all %}
+            <tr>
+                <td>{{ ticket.image }}</td>
+                <td>{{ ticket.description }}</td>
+                <td>{{ ticket.price }}</td>
+                <td>
+                    {% if user.is_authenticated and user|has_group:"offerer" %}
+                    <a class="btn btn-outline-success" href="{% url 'ticket-exchange' ticket.pk %}">Trocar</a>
+                    <a class="btn btn-outline-primary" href="{% url 'ticket-edit' ticket.pk %}">Editar</a>
+                    <a class="btn btn-outline-danger" href="{% url 'ticket-delete' ticket.pk %}">Excluir</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

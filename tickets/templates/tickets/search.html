@@ -1,0 +1,59 @@
+{% extends "tickets/base.html" %}
+{% load auth_extras %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+  <body>
+
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Busca de ofertador</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Buscar</button>
+            </div>
+        </form>
+    </div>
+
+    {% if offerers %}
+    <div class="content-section">
+        <legend class="border-bottom mb-4">Resultado da busca</legend>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Endereço</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offerer in offerers %}
+                <tr>
+                    <td>{{ offerer.user.username }}</td>
+                    <td>{{ offerer.user.email }}</td>
+                    <td>{{ offerer.phone }}</td>
+                    <td>{{ offerer.address }}</td>
+                    <td>
+                        <a class="btn btn-outline-success" href="{{ offerer.get_absolute_url }}">Ver</a>
+                        {% if user.is_authenticated and user|has_group:"regulator" %}
+                            {% if offerer.user|has_group:"unapproved_offerer" %}
+                                <a class="btn btn-outline-primary" href="{% url 'approve-offerer' offerer.pk %}">Aprovar</a>
+                            {% endif %}
+                        <a class="btn btn-outline-danger" href="{{ offerer.get_absolute_url }}/delete">Excluir</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+  </body>
+
+{% endblock content %}

@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
-from .models import OffererProfile
+from .models import OffererProfile, Ticket
 
 
 class CreationForm(UserCreationForm):
@@ -27,3 +27,14 @@ class OffererProfileForm(forms.ModelForm):
         profile.user = user
         profile.save()
         return profile
+
+class OffererSearchForm(forms.Form):
+    search = forms.CharField(max_length=100)
+    def __init__(self, *args, **kwargs):
+        super(OffererSearchForm, self).__init__(*args, **kwargs)
+        self.fields['search'].widget.attrs.update({'class': 'form-control'})
+
+class TicketCreationForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ("description", "price", "image")
