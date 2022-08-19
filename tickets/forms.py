@@ -1,29 +1,53 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
+from betterforms.multiform import MultiModelForm
 
-from .models import OffererProfile
+from models import *
 
 
-class CreationForm(UserCreationForm):
+class ProfileForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ("username", "email", "password1", "password2")
+        model = Profile
+        exclude = ["user"]
 
-    def save(self, user_group):
-        user = super().save()
-        user.groups.add(user_group)
-        return user
-
-
-class OffererProfileForm(forms.ModelForm):
+class OffererForm(forms.ModelForm):
     class Meta:
-        model = OffererProfile
-        fields = ("address", "phone")
+        model = Offerer
+        exclude = ["user"]
 
-    def save(self, user):
-        profile = super().save(commit=False)
-        profile.user = user
-        profile.save()
-        return profile
+
+class BuyerForm(forms.ModelForm):
+    class Meta:
+        model = Buyer
+        exclude = ["user"]
+
+
+class OffererSignUpForm(MultiModelForm):
+    form_classes = {"user": UserCreationForm, "profile": ProfileForm}
+
+    def save(self, commit=True):
+        objects = super(OffererSignUpForm, self).save(commit=False)
+
+        if commit:
+            user = objects['user']
+            user.save()
+            profile = objects['profile']
+            profile.user = user
+            profile.save()
+
+        return objects
+
+class BuyerSignUpForm(MultiModelForm):
+    form_classes = {"user": UserCreationForm, "buyer": BuyerForm}
+
+    def save(self, commit=True):
+        objects = super(BuyerSignUpForm, self).save(commit=False)
+
+        if commit:
+            user = objects['user']
+            user.save()
+            profile = objects['profile']
+            profile.user = user
+            profile.save()
+
+        return objects
