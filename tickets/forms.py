@@ -1,53 +1,75 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from betterforms.multiform import MultiModelForm
+from django.contrib.auth.forms import UserCreationForm, UsernameField
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
-from models import *
+from .models import Profile, Address
 
 
-class ProfileForm(forms.ModelForm):
+class SignupForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=True, label="Nome")
+    last_name = forms.CharField(max_length=30, required=True, label="Sobrenome")
+    email = forms.EmailField(
+        max_length=254, help_text="Required. Inform a valid email address.", label="E-mail"
+    )
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "Usuário"
+        self.fields["password1"].label = "Senha"
+        self.fields["password2"].label = "Confirme a senha"
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+        )
+
+
+class OffererProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["phone"].required = True
+        self.fields["place_name"].required = True
+
     class Meta:
         model = Profile
-        exclude = ["user"]
+        fields = ("place_name", "phone", "picture")
+        labels = {
+            "place_name": "Nome do estabelecimento",
+            "phone": "Telefone",
+            "picture": "Foto de perfil",
+        }
 
-class OffererForm(forms.ModelForm):
+
+class AddressForm(forms.ModelForm):
     class Meta:
-        model = Offerer
-        exclude = ["user"]
+        model = Address
+        fields = (
+            "cep",
+            "street_name",
+            "street_number",
+            "neighborhood",
+            "city",
+            "state",
+        )
+        labels = {
+            "cep": "CEP",
+            "street_name": "Nome da rua",
+            "street_number": "Número",
+            "neighborhood": "Bairro",
+            "city": "Cidade",
+            "state": "Estado",
+        }
 
 
-class BuyerForm(forms.ModelForm):
+class BuyerProfileForm(forms.ModelForm):
     class Meta:
-        model = Buyer
-        exclude = ["user"]
-
-
-class OffererSignUpForm(MultiModelForm):
-    form_classes = {"user": UserCreationForm, "profile": ProfileForm}
-
-    def save(self, commit=True):
-        objects = super(OffererSignUpForm, self).save(commit=False)
-
-        if commit:
-            user = objects['user']
-            user.save()
-            profile = objects['profile']
-            profile.user = user
-            profile.save()
-
-        return objects
-
-class BuyerSignUpForm(MultiModelForm):
-    form_classes = {"user": UserCreationForm, "buyer": BuyerForm}
-
-    def save(self, commit=True):
-        objects = super(BuyerSignUpForm, self).save(commit=False)
-
-        if commit:
-            user = objects['user']
-            user.save()
-            profile = objects['profile']
-            profile.user = user
-            profile.save()
-
-        return objects
+        model = Profile
+        fields = ("phone", "picture")
+        labels = {"phone": "Telefone", "picture": "Foto de perfil"}

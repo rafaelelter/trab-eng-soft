@@ -8,16 +8,18 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Cadastro de comprador</legend>
-                {{ form|crispy }}
+                <legend class="border-bottom mb-4">Cadastro de ofertador</legend>
+                {{ user_form|crispy }}
+                {{ profile_form|crispy }}
+                {{ address_form|crispy }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Sign Up</button>
+                <button class="btn btn-outline-info" type="submit">Cadastrar</button>
             </div>
         </form>
         <div class="border-top pt-3">
             <small class="text-muted">
-                Already Have An Account? <a class="ml-2" href="{% url 'login' %}">Sign In</a>
+                Já possui uma conta? <a class="ml-2" href="{% url 'login' %}">Entrar</a>
             </small>
         </div>
     </div>

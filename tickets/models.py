@@ -1,12 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
 
-from .validators import cep_validator, phone_validator
-from .user_extension import is_buyer, is_offerer, is_regulator
-
-User.add_to_class("is_buyer", is_buyer)
-User.add_to_class("is_offerer", is_offerer)
-User.add_to_class("is_regulator", is_regulator)
+from .validators import cep_validator, phone_validator, is_offerer, is_regulator
 
 
 class Address(models.Model):
@@ -18,20 +12,35 @@ class Address(models.Model):
     state = models.CharField(max_length=2)
 
 
-class Buyer(models.Model):
-    user = models.OneToOneField("auth.User", on_delete=models.CASCADE)
-
-
-class Offerer(models.Model):
-    user = models.OneToOneField("auth.User", on_delete=models.CASCADE)
-
-
-class Regulator(models.Model):
-    user = models.OneToOneField("auth.User", on_delete=models.CASCADE)
+class OffererApproval(models.Model):
+    approved_offerer = models.OneToOneField(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="approved_offerer",
+        validators=[is_offerer],
+        unique=True,
+    )
+    approved_by = models.OneToOneField(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="approved_by",
+        validators=[is_regulator],
+    )
+    ts = models.DateTimeField(auto_now_add=True)
 
 
 class Profile(models.Model):
     user = models.OneToOneField("auth.User", on_delete=models.CASCADE)
+    user_type = models.CharField(
+        max_length=1,
+        choices=[
+            ("B", "Buyer"),
+            ("O", "Offerer"),
+            ("R", "Regulator"),
+        ],
+        default="B",
+    )
+    place_name = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, validators=[phone_validator])
     address = models.ForeignKey(
         Address, on_delete=models.CASCADE, null=True, blank=True
@@ -41,9 +50,7 @@ class Profile(models.Model):
     def __str__(self) -> str:
         return f"{self.user.username}'s profile"
 
-    def approve_offerer(self):
-        if self.is_offerer:
-            self.is_offerer_aproved = True
-            self.save()
-        else:
-            raise Exception("User is not an offerer")
+    def is_approved(self):
+        if self.user_type == "O":
+            return hasattr(self.user, "approved_offerer")
+        raise NotImplementedError("Only offerers can be approved")

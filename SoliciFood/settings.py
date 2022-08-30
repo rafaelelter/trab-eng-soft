@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "tickets",
     "crispy_forms",
-    "betterforms",
 ]
 
 MIDDLEWARE = [
@@ -125,8 +124,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = "/tickets"
-LOGOUT_REDIRECT_URL = "/tickets"
+LOGIN_REDIRECT_URL = "tickets-home"
+LOGOUT_REDIRECT_URL = "tickets-home"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 

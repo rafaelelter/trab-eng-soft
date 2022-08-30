@@ -5,11 +5,11 @@
   <body>
 
     {% if user.is_authenticated %}
-      {% if user|has_group:"offerer" %}
+      {% if user.profile.is_user %}
         <h1>Painel do Ofertador</h1>
-      {% elif user|has_group:"buyer" %}
+      {% elif user.profile.is_offerer %}
         <h1>Painel do Comprador</h1>
-      {% elif user|has_group:"regulator" %}
+      {% elif user.profile.is_regulator %}
         <h1>Painel do Regulador</h1>
       {% endif %}
     {% else %}
