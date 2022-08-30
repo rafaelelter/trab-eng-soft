@@ -33,6 +33,8 @@
             </thead>
             <tbody>
                 {% for offerer in offerers %}
+                {% if user|has_group:"regulator" or offerer.user|has_group:"offerer" %}
+                
                 <tr>
                     <td>{{ offerer.user.username }}</td>
                     <td>{{ offerer.user.email }}</td>
@@ -48,6 +50,7 @@
                         {% endif %}
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
