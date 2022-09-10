@@ -30,7 +30,7 @@ def signup_offerer(request):
             profile.user_type = "O"
 
             address = address_form.save(commit=False)
-            address.profile = profile
+            profile.address = address
 
             user.save()
             profile.save()
