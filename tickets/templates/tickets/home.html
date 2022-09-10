@@ -5,9 +5,9 @@
   <body>
 
     {% if user.is_authenticated %}
-      {% if user.profile.is_user %}
+      {% if user.profile.is_offerer %}
         <h1>Painel do Ofertador</h1>
-      {% elif user.profile.is_offerer %}
+      {% elif user.profile.is_buyer %}
         <h1>Painel do Comprador</h1>
       {% elif user.profile.is_regulator %}
         <h1>Painel do Regulador</h1>

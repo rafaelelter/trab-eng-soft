@@ -51,6 +51,15 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
     def is_approved(self):
-        if self.user_type == "O":
+        if self.is_offerer():
             return hasattr(self.user, "approved_offerer")
         raise NotImplementedError("Only offerers can be approved")
+
+    def is_offerer(self):
+        return self.user_type == "O"
+
+    def is_buyer(self):
+        return self.user_type == "B"
+
+    def is_regulator(self):
+        return self.user_type == "R"
