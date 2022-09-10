@@ -17,19 +17,23 @@ def signup_offerer(request):
         user_form = SignupForm(request.POST)
         profile_form = OffererProfileForm(request.POST, request.FILES)
         address_form = AddressForm(request.POST)
-        if all(user_form.is_valid(), profile_form.is_valid(), address_form.is_valid()):
+        if all(
+            (user_form.is_valid(), profile_form.is_valid(), address_form.is_valid())
+        ):
             user = user_form.save(commit=False)
             user.first_name = user_form.cleaned_data["first_name"]
             user.last_name = user_form.cleaned_data["last_name"]
             user.email = user_form.cleaned_data["email"]
-            user.save()
 
             profile = profile_form.save(commit=False)
             profile.user = user
-            profile.save()
+            profile.user_type = "O"
 
             address = address_form.save(commit=False)
             address.profile = profile
+
+            user.save()
+            profile.save()
             address.save()
 
             authenticated_user = authenticate(
@@ -48,7 +52,7 @@ def signup_offerer(request):
         "profile_form": profile_form,
         "address_form": address_form,
     }
-    return render(request, "signup_offerer", context)
+    return render(request, "tickets/signup_offerer.html", context)
 
 
 def signup_buyer(request):
@@ -64,6 +68,7 @@ def signup_buyer(request):
 
             profile = profile_form.save(commit=False)
             profile.user = user
+            profile.user_type = "B"
 
             user.save()
             profile.save()
@@ -81,4 +86,4 @@ def signup_buyer(request):
         "user_form": user_form,
         "profile_form": profile_form,
     }
-    return render(request, "signup_buyer", context)
+    return render(request, "tickets/signup_buyer.html", context)
