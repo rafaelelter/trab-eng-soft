@@ -72,3 +72,6 @@ class BuyerProfileForm(forms.ModelForm):
         model = Profile
         fields = ("phone", "picture")
         labels = {"phone": "Telefone", "picture": "Foto de perfil"}
+
+class SearchOffererForm(forms.Form):
+    search = forms.CharField(label="Buscar", max_length=100)

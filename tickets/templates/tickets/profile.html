@@ -1,0 +1,12 @@
+{% extends "tickets/base.html" %}
+{% block content %}
+
+  <body>
+
+    {% if profile.is_offerer %}
+    <h1>{{ profile.place_name }}</h1>
+    {% endif %}
+
+  </body>
+
+{% endblock content %}

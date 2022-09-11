@@ -31,10 +31,12 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{% url 'tickets-home' %}">Home</a>
+              <a class="nav-item nav-link" href="{% url 'search_offerer' %}">Pesquisar</a>
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if user.is_authenticated %}
+                <a class="nav-item nav-link" href="{% url 'profile' user.profile.pk %}">Meu Perfil</a>
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
               {% else %}
                 <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>

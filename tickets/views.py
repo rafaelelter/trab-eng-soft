@@ -1,7 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 
-from .forms import SignupForm, OffererProfileForm, AddressForm, BuyerProfileForm
+from .forms import (
+    SignupForm,
+    OffererProfileForm,
+    AddressForm,
+    BuyerProfileForm,
+    SearchOffererForm,
+)
+from .models import Profile
 
 
 def home(request):
@@ -87,3 +94,25 @@ def signup_buyer(request):
         "profile_form": profile_form,
     }
     return render(request, "tickets/signup_buyer.html", context)
+
+
+def search_offerer(request):
+    if request.method == "POST":
+        form = SearchOffererForm(request.POST)
+
+        if form.is_valid():
+            offerers = Profile.objects.filter(
+                user_type="O",
+                place_name__icontains=form.cleaned_data["search"],
+            )
+            context = {"offerers": offerers}
+            return render(request, "tickets/search_offerer.html", context)
+    else:
+        form = SearchOffererForm()
+    context = {"form": form}
+    return render(request, "tickets/search_offerer.html", context)
+
+def profile_view(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+
+    return render(request, "tickets/profile.html", context={"profile": profile})
