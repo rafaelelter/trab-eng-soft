@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from .validators import cep_validator, phone_validator, is_offerer, is_regulator
 
@@ -10,6 +11,9 @@ class Address(models.Model):
     neighborhood = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=2)
+
+    def __str__(self):
+        return f"{self.street_name}, {self.street_number}, {self.neighborhood}, {self.city}, {self.state}"
 
 
 class OffererApproval(models.Model):
@@ -63,3 +67,6 @@ class Profile(models.Model):
 
     def is_regulator(self):
         return self.user_type == "R"
+
+    def get_absolute_url(self):
+        return reverse("profile", kwargs={"pk": self.pk})
