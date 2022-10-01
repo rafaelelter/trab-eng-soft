@@ -19,4 +19,5 @@ urlpatterns = [
     path("purchase_ticket/<int:pk>/", views.purchase_ticket, name="purchase_ticket"),
     path("approve_offerer/<int:pk>/", views.approve_offerer, name="approve_offerer"),
     path("profile/<int:pk>/delete/", views.delete_offerer, name="delete_oferer"),
+    path("validate_ticket/<int:pk>/", views.validate_ticket, name="validate_ticket"),
 ]

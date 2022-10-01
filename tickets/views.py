@@ -10,6 +10,7 @@ from .forms import (
     SearchOffererForm,
     CreateTicketForm,
     TicketPurchaseForm,
+    TicketValidationForm,
 )
 from .models import OffererApproval, Profile, Ticket
 
@@ -34,16 +35,15 @@ def signup_offerer(request):
             user.first_name = user_form.cleaned_data["first_name"]
             user.last_name = user_form.cleaned_data["last_name"]
             user.email = user_form.cleaned_data["email"]
+            user.save()
 
             profile = profile_form.save(commit=False)
             profile.user = user
             profile.user_type = "O"
+            profile.save()
 
             address = address_form.save(commit=False)
             profile.address = address
-
-            user.save()
-            profile.save()
             address.save()
 
             authenticated_user = authenticate(
@@ -224,3 +224,32 @@ def delete_offerer(request, pk):
     profile.delete()
     
     return redirect("tickets-home")
+
+def validate_ticket(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    if ticket.buyer is None:
+        return redirect("tickets-home")
+
+    if ticket.offerer != request.user.profile:
+        return redirect("tickets-home")
+
+    if not ticket.password:
+        ticket.validated = True
+        ticket.save()
+    else:
+        if request.method == "POST":
+            form = TicketValidationForm(request.POST)
+            if form.is_valid():
+                password = form.cleaned_data["password"]
+                if password == ticket.password:
+                    ticket.validated = True
+                    ticket.save()
+                    return redirect("profile", pk=request.user.profile.pk)
+                else:
+                    form.add_error("password", "Senha errada")
+        else:
+            form = TicketValidationForm()
+        
+        context = {"form": form}
+        return render(request, "tickets/ticket_validation.html", context)
+    return redirect("profile", pk=request.user.profile.pk)

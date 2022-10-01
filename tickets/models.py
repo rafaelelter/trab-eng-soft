@@ -29,7 +29,7 @@ class OffererApproval(models.Model):
         validators=[is_offerer],
         unique=True,
     )
-    approved_by = models.OneToOneField(
+    approved_by = models.ForeignKey(
         "auth.User",
         on_delete=models.CASCADE,
         related_name="approved_by",
@@ -62,7 +62,7 @@ class Profile(models.Model):
     def is_approved_offerer(self):
         if self.is_offerer():
             return hasattr(self.user, "approved_offerer")
-        raise NotImplementedError("Only offerers can be approved")
+        return False
 
     def is_offerer(self):
         return self.user_type == "O"

@@ -32,7 +32,7 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{% url 'tickets-home' %}">Home</a>
               <a class="nav-item nav-link" href="{% url 'search_offerer' %}">Pesquisar</a>
-              {% if user.profile.is_offerer %}
+              {% if user.profile.is_approved_offerer %}
               <a class="nav-item nav-link" href="{% url 'create_ticket' %}">Criar ticket</a>
               {% endif %}
             </div>

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.forms import HiddenInput, PasswordInput
 
 from .models import Profile, Address, Ticket
 
@@ -9,7 +10,9 @@ class SignupForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label="Nome")
     last_name = forms.CharField(max_length=30, required=True, label="Sobrenome")
     email = forms.EmailField(
-        max_length=254, help_text="Required. Inform a valid email address.", label="E-mail"
+        max_length=254,
+        help_text="Required. Inform a valid email address.",
+        label="E-mail",
     )
 
     def __init__(self, *args, **kwargs) -> None:
@@ -73,8 +76,10 @@ class BuyerProfileForm(forms.ModelForm):
         fields = ("phone", "picture")
         labels = {"phone": "Telefone", "picture": "Foto de perfil"}
 
+
 class SearchOffererForm(forms.Form):
     search = forms.CharField(label="Buscar", max_length=100)
+
 
 class CreateTicketForm(forms.ModelForm):
     class Meta:
@@ -86,6 +91,7 @@ class CreateTicketForm(forms.ModelForm):
             "picture": "Foto",
         }
 
+
 class TicketPurchaseForm(forms.ModelForm):
     class Meta:
         model = Ticket
@@ -94,3 +100,7 @@ class TicketPurchaseForm(forms.ModelForm):
             "password": "Senha",
             "expiration": "Data de expiração",
         }
+
+
+class TicketValidationForm(forms.Form):
+    password = forms.CharField(label="Senha", max_length=100, widget=PasswordInput)
