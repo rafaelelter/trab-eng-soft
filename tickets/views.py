@@ -69,7 +69,9 @@ def signup_buyer(request):
         user_form = SignupForm(request.POST)
         profile_form = BuyerProfileForm(request.POST, request.FILES)
 
-        if all(user_form.is_valid(), profile_form.is_valid()):
+        if all(
+            (user_form.is_valid(), profile_form.is_valid())
+            ):
             user = user_form.save(commit=False)
             user.first_name = user_form.cleaned_data["first_name"]
             user.last_name = user_form.cleaned_data["last_name"]
