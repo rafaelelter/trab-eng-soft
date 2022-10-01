@@ -88,7 +88,7 @@ class Ticket(models.Model):
     offerer = models.ForeignKey(Profile, on_delete=models.CASCADE)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    picture = models.ImageField(default="default_ticket.png", upload_to="ticket_pics")
+    picture = models.ImageField(default="default_ticket.png", upload_to="ticket_pics", blank=True)
     buyer = models.ForeignKey(
         Profile, on_delete=models.SET_NULL, related_name="buyer", null=True, blank=True
     )
