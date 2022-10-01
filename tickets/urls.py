@@ -20,4 +20,5 @@ urlpatterns = [
     path("approve_offerer/<int:pk>/", views.approve_offerer, name="approve_offerer"),
     path("profile/<int:pk>/delete/", views.delete_offerer, name="delete_oferer"),
     path("validate_ticket/<int:pk>/", views.validate_ticket, name="validate_ticket"),
+    path("search_offerer_map/", views.search_offerer_map, name="search_offerer_map"),
 ]

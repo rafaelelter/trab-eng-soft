@@ -17,8 +17,11 @@ class Address(models.Model):
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=2)
 
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+
     def __str__(self):
-        return f"{self.street_name}, {self.street_number}, {self.neighborhood}, {self.city}, {self.state}"
+        return f"{self.street_name}, {self.street_number}, {self.neighborhood}, {self.city}, {self.state}, {self.cep}"
 
 
 class OffererApproval(models.Model):

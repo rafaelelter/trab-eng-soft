@@ -37,14 +37,18 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{% url 'tickets-home' %}">Home</a>
-              <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pesquisar</a>
-                <div class="dropdown-menu">
-                  <a href="{% url 'search_offerer' %}" class="dropdown-item">Por nome</a>
-                  <a href="{% url 'search_offerer_map' %}" class="dropdown-item">Pelo mapa</a>
-                </div>
+              <div class="dropdown">
+                <button class="dropbtn">Dropdown</button>
+                <div class="dropdown-content">
+                  <a href="#">Link 1</a>
+                  <a href="#">Link 2</a>
+                  <a href="#">Link 3</a>
               </div>
-
+              <!-- <a class="nav-item nav-link dropdown-bu" href="{% url 'search_offerer' %}">Pesquisar</a>
+                <div class="dropdown-content">
+                  <a class="nav-item nav-link dropdown-content" href="{% url 'search_offerer' %}">Pesquisar por nome</a>
+                  <a class="nav-item nav-link dropdown-content" href="{% url 'search_offerer_map' %}">Pesquisar no mapa</a>
+                </div> -->
               {% if user.profile.is_approved_offerer %}
               <a class="nav-item nav-link" href="{% url 'create_ticket' %}">Criar ticket</a>
               {% endif %}

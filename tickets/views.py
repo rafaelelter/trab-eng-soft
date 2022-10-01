@@ -14,6 +14,8 @@ from .forms import (
 )
 from .models import OffererApproval, Profile, Ticket
 
+import requests
+import json
 
 def home(request):
     return render(request, "tickets/home.html")
@@ -35,16 +37,34 @@ def signup_offerer(request):
             user.first_name = user_form.cleaned_data["first_name"]
             user.last_name = user_form.cleaned_data["last_name"]
             user.email = user_form.cleaned_data["email"]
-            user.save()
 
             profile = profile_form.save(commit=False)
             profile.user = user
             profile.user_type = "O"
-            profile.save()
 
+            user.save()
+            
             address = address_form.save(commit=False)
             profile.address = address
-            address.save()
+            
+            url = "https://nominatim.openstreetmap.org/search"
+            params = {
+                "street": f"{address.street_number} {address.street_name}",
+                "format": "json",
+                "limit": 1
+            }
+
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                if data:
+                    address.latitude = data[0]["lat"]
+                    address.longitude = data[0]["lon"]
+                    address.save()
+            else:
+                address.save()
+
+            profile.save()
 
             authenticated_user = authenticate(
                 username=user_form.cleaned_data["username"],
@@ -253,3 +273,23 @@ def validate_ticket(request, pk):
         context = {"form": form}
         return render(request, "tickets/ticket_validation.html", context)
     return redirect("profile", pk=request.user.profile.pk)
+
+def search_offerer_map(request):
+    profiles = Profile.objects.filter(user_type="O")
+
+    js_marker_template = """
+    var marker = L.marker([{latitude}, {longitude}]).addTo(map)
+        .bindPopup('<b>{name}</b><br />{info}').openPopup();
+    """
+
+    coord_markers = []
+    for profile in profiles:
+        if profile.address.latitude and profile.address.longitude:
+            coord_markers.append((
+                profile.address.latitude,
+                profile.address.longitude,
+                profile.get_absolute_url(),
+                profile.place_name,
+            ))
+
+    return render(request, "tickets/search_offerer_map.html", context={"my_list": json.dumps(coord_markers)})

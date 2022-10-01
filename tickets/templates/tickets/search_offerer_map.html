@@ -1,0 +1,33 @@
+{% extends "tickets/base.html" %}
+
+
+{% block content %}
+
+    <div>
+        <div>
+            <h1>Mapa</h1>
+        </div>
+
+        <div id="map" style="width: 600px; height: 400px; position: relative; outline: none;"
+        class="leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom"
+        tabindex="0">
+        </div>
+    </div>
+
+    <script>
+        var map = L.map('map').setView([-30.0277, -51.2287], 13);
+
+        var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var my_list = JSON.parse('{{ my_list|escapejs }}');
+        my_list.forEach(element => {
+            var marker = L.marker([element[0], element[1]]).addTo(map);
+            marker.bindPopup('<a href=' + element[2] + '>' + element[3] + '</a>');
+        });
+
+        </script>
+
+{% endblock content %}
