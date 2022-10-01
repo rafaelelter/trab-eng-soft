@@ -2,6 +2,17 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+<script>
+    let deletURL = "{{ offerer.get_absolute_url }}/delete";
+    function delete_confirmation(href) {
+    let text = "Você tem certeza que deseja deletar esse ofertador?";
+    if (confirm(text) == true) {
+        window.location.href = href;
+    }
+}
+</script>
+
+
   <body>
 
     <div class="content-section">
@@ -41,7 +52,7 @@
                             {% if not offerer.is_approved_offerer %}
                                 <a class="btn btn-outline-primary" href="{% url 'approve_offerer' offerer.pk %}">Aprovar</a>
                             {% endif %}
-                        <a class="btn btn-outline-danger" href="{{ offerer.get_absolute_url }}/delete">Excluir</a>
+                        <a class="btn btn-outline-danger" onclick="delete_confirmation('{{ offerer.get_absolute_url }}delete')" id="deleteButton">Excluir</a>
                         {% endif %}
                     </td>
                 </tr>

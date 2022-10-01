@@ -216,3 +216,11 @@ def approve_offerer(request, pk):
     approval.save()
     
     return redirect("profile", pk=profile.pk)
+
+@user_passes_test(is_regulator_test, login_url="/login")
+def delete_offerer(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+
+    profile.delete()
+    
+    return redirect("tickets-home")
