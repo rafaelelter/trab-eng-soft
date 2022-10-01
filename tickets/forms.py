@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Profile, Address
+from .models import Profile, Address, Ticket
 
 
 class SignupForm(UserCreationForm):
@@ -75,3 +75,13 @@ class BuyerProfileForm(forms.ModelForm):
 
 class SearchOffererForm(forms.Form):
     search = forms.CharField(label="Buscar", max_length=100)
+
+class CreateTicketForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ("description", "price", "picture")
+        labels = {
+            "description": "Descrição",
+            "price": "Preço",
+            "picture": "Foto",
+        }

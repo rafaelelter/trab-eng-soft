@@ -5,6 +5,36 @@
 
     {% if profile.is_offerer %}
     <h1>{{ profile.place_name }}</h1>
+    <h2>Tickets</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Imagem</th>
+          <th scope="col">Descrição</th>
+          <th scope="col">Preço</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        {% for ticket in profile.ticket_set.all %}
+        <tr>
+          <td>
+            <img src="{{ ticket.picture.url }}" width="100" height="100">
+          </td>
+          <td>{{ ticket.description }}</td>
+          <td>{{ ticket.price}}</td>
+          <td>
+            {% if profile.user == user %}
+            <a class="btn btn-outline-primary" href="{% url 'edit_ticket' ticket.pk %}">Editar</a>
+            <a class="btn btn-outline-danger" href="{% url 'delete_ticket' ticket.pk %}">Excluir</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
     {% endif %}
 
   </body>

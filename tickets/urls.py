@@ -12,4 +12,8 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("search/", views.search_offerer, name="search_offerer"),
     path("profile/<int:pk>/", views.profile_view, name="profile"),
+    path("ticket/<int:pk>/", views.ticket_view, name="ticket"),
+    path("create_ticket/", views.create_ticket, name="create_ticket"),
+    path("edit_ticket/<int:pk>/", views.edit_ticket, name="edit_ticket"),
+    path("delete_ticket/<int:pk>/", views.delete_ticket, name="delete_ticket"),
 ]
