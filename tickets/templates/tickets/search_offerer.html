@@ -38,8 +38,8 @@
                     <td>
                         <a class="btn btn-outline-success" href="{{ offerer.get_absolute_url }}">Ver</a>
                         {% if user.is_authenticated and user.profile.is_regulator %}
-                            {% if offerer.is_approved %}
-                                <a class="btn btn-outline-primary" href="{% url 'approve-offerer' offerer.pk %}">Aprovar</a>
+                            {% if not offerer.is_approved_offerer %}
+                                <a class="btn btn-outline-primary" href="{% url 'approve_offerer' offerer.pk %}">Aprovar</a>
                             {% endif %}
                         <a class="btn btn-outline-danger" href="{{ offerer.get_absolute_url }}/delete">Excluir</a>
                         {% endif %}

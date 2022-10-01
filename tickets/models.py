@@ -59,7 +59,7 @@ class Profile(models.Model):
     def __str__(self) -> str:
         return f"{self.user.username}'s profile"
 
-    def is_approved(self):
+    def is_approved_offerer(self):
         if self.is_offerer():
             return hasattr(self.user, "approved_offerer")
         raise NotImplementedError("Only offerers can be approved")

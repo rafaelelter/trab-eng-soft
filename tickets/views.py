@@ -11,7 +11,7 @@ from .forms import (
     CreateTicketForm,
     TicketPurchaseForm,
 )
-from .models import Profile, Ticket
+from .models import OffererApproval, Profile, Ticket
 
 
 def home(request):
@@ -124,13 +124,13 @@ def profile_view(request, pk):
     return render(request, "tickets/profile.html", context={"profile": profile})
 
 
-def is_offerer_test(user):
+def is_approved_offerer_test(user):
     if user.is_authenticated and hasattr(user, "profile"):
-        return user.profile.is_offerer()
+        return user.profile.is_approved_offerer()
     return False
 
 
-@user_passes_test(is_offerer_test, login_url="/login")
+@user_passes_test(is_approved_offerer_test, login_url="/login")
 def create_ticket(request):
     if request.method == "POST":
         form = CreateTicketForm(request.POST, request.FILES)
@@ -203,3 +203,16 @@ def purchase_ticket(request, pk):
     
     context = {"form": form}
     return render(request, "tickets/ticket_purchase.html", context)
+
+def is_regulator_test(user):
+    if user.is_authenticated and hasattr(user, "profile"):
+        return user.profile.is_regulator()
+    return False
+
+@user_passes_test(is_regulator_test, login_url="/login")
+def approve_offerer(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+    approval = OffererApproval.objects.create(approved_offerer=profile.user, approved_by=request.user)
+    approval.save()
+    
+    return redirect("profile", pk=profile.pk)
