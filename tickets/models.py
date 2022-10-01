@@ -104,10 +104,15 @@ class Ticket(models.Model):
 
     def save(self):
         super().save()
-        
+
         img = Image.open(self.picture.path)
 
         if img.height > 300 or img.width > 300:
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.picture.path)
+
+    def set_picture_default(self):
+        self.picture.delete(save=False)  # delete old image file
+        self.picture = 'default_ticket.png' # set default image
+        self.save()

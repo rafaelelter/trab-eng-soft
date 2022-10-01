@@ -168,6 +168,7 @@ def delete_ticket(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if ticket.offerer != request.user.profile:
         return redirect("tickets-home")
+    ticket.set_picture_default()
     ticket.delete()
     return redirect("profile", pk=request.user.profile.pk)
 
