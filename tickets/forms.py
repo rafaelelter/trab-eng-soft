@@ -85,3 +85,12 @@ class CreateTicketForm(forms.ModelForm):
             "price": "Preço",
             "picture": "Foto",
         }
+
+class TicketPurchaseForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ("password", "expiration")
+        labels = {
+            "password": "Senha",
+            "expiration": "Data de expiração",
+        }

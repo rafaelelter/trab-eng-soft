@@ -9,6 +9,7 @@ from .forms import (
     BuyerProfileForm,
     SearchOffererForm,
     CreateTicketForm,
+    TicketPurchaseForm,
 )
 from .models import Profile, Ticket
 
@@ -179,3 +180,26 @@ def ticket_view(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
 
     return render(request, "tickets/ticket.html", context={"ticket": ticket})
+
+def is_buyer_test(user):
+    if user.is_authenticated and hasattr(user, "profile"):
+        return user.profile.is_buyer()
+    return False
+
+@user_passes_test(is_buyer_test, login_url="/login")
+def purchase_ticket(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    if ticket.buyer is not None:
+        return redirect("tickets-home")
+    
+    if request.method == "POST":
+        form = TicketPurchaseForm(request.POST, instance=ticket)
+        if form.is_valid():
+            ticket.buyer = request.user.profile
+            ticket.save()
+            return redirect("profile", pk=request.user.profile.pk)
+    else:
+        form = TicketPurchaseForm(instance=ticket)
+    
+    context = {"form": form}
+    return render(request, "tickets/ticket_purchase.html", context)

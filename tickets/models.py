@@ -78,21 +78,22 @@ class Profile(models.Model):
 
     def list_tickets(self):
         if self.is_buyer():
-            return self.user.buyer_tickets.all()
+            return self.purchases.all()
         elif self.is_offerer():
-            return self.user.offerer_tickets.all()
+            return self.offers.all()
         raise NotImplementedError("Only buyers and offerers can list tickets")
 
 
 class Ticket(models.Model):
-    offerer = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    offerer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="offers")
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     picture = models.ImageField(default="default_ticket.png", upload_to="ticket_pics", blank=True)
     buyer = models.ForeignKey(
-        Profile, on_delete=models.SET_NULL, related_name="buyer", null=True, blank=True
+        Profile, on_delete=models.SET_NULL, related_name="purchases", null=True, blank=True
     )
     password = models.CharField(max_length=100, blank=True)
+    expiration = models.DateTimeField(null=True, blank=True)
     validated = models.BooleanField(default=False)
     ts = models.DateTimeField(auto_now_add=True)
 
@@ -116,3 +117,6 @@ class Ticket(models.Model):
         self.picture.delete(save=False)  # delete old image file
         self.picture = 'default_ticket.png' # set default image
         self.save()
+
+    def is_available(self):
+        return not self.buyer

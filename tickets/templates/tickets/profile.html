@@ -5,19 +5,23 @@
 
     {% if profile.is_offerer %}
     <h1>{{ profile.place_name }}</h1>
-    <h2>Tickets</h2>
+    {% else %}
+    <h1>{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+    {% endif %}
+    <h2>{% if profile.user == user %}Meus {% endif %}Tickets</h2>
     <table class="table">
       <thead>
         <tr>
           <th scope="col">Imagem</th>
           <th scope="col">Descrição</th>
           <th scope="col">Preço</th>
+          <th scope="col">Comprador</th>
           <th scope="col">Ações</th>
         </tr>
       </thead>
       <tbody>
         
-        {% for ticket in profile.ticket_set.all %}
+        {% for ticket in profile.list_tickets %}
         <tr>
           <td>
             <img src="{{ ticket.picture.url }}" width="100" height="100">
@@ -25,17 +29,25 @@
           <td>{{ ticket.description }}</td>
           <td>{{ ticket.price}}</td>
           <td>
-            {% if profile.user == user %}
+            {% if ticket.buyer %}
+              {{ ticket.buyer.user.first_name }} {{ ticket.buyer.user.last_name }}
+            {% else %}
+              Disponível
+            {% endif %}
+            </td>
+          <td>
+            {% if ticket.offerer.user == user and ticket.is_available %}
             <a class="btn btn-outline-primary" href="{% url 'edit_ticket' ticket.pk %}">Editar</a>
             <a class="btn btn-outline-danger" href="{% url 'delete_ticket' ticket.pk %}">Excluir</a>
+            {% endif %}
+            {% if user.profile.is_buyer and ticket.is_available %}
+              <a class="btn btn-outline-success" href="{% url 'purchase_ticket' ticket.pk %}">Comprar</a>
             {% endif %}
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-
-    {% endif %}
 
   </body>
 
