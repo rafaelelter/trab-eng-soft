@@ -106,8 +106,8 @@ class Ticket(models.Model):
     def get_absolute_url(self):
         return reverse("ticket", kwargs={"pk": self.pk})
 
-    def save(self):
-        super().save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
         img = Image.open(self.picture.path)
 
