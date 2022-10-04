@@ -142,13 +142,12 @@ class Ticket(models.Model):
     def status(self):
         if not self.buyer:
             return "Disponível"
-        elif self.buyer:
-            if self.expiration:
-                if self.expiration < datetime.now(tz=pytz.timezone("America/Sao_Paulo")):
-                    return "Expirado"
-            return "Aguardando retirada"
-        else:
+        if self.expiration:
+            if self.expiration < datetime.now(tz=pytz.timezone("America/Sao_Paulo")):
+                return "Expirado"
+        if self.validated:
             return "Utilizado"
+        return "Aguardando retirada"
 
     def is_available(self):
         self.status == "Disponível"

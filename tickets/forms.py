@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import HiddenInput, PasswordInput
 from django.core.exceptions import ValidationError
+import pytz
 
 from .models import Profile, Address, Ticket, validate_random_id
 from .validators import description_validator
@@ -130,16 +131,17 @@ class TicketPurchaseForm(forms.ModelForm):
             "expiration_time": "Hora de expiração",
         }
 
-    def clean_expiration(self):
+    def clean_expiration(self, cleaned_data):
         expiration_date = self.cleaned_data["expiration_date"]
         expriration_time = self.cleaned_data["expiration_time"]
-        expiration = datetime.datetime.combine(expiration_date, expriration_time)
-        if expiration < datetime.datetime.now():
+        expiration = datetime.datetime.combine(expiration_date, expriration_time, tzinfo=pytz.timezone("America/Sao_Paulo"))
+        if expiration < datetime.datetime.now(tz=pytz.timezone("America/Sao_Paulo")):
             raise ValidationError("Data de expiração inválida")
 
     def clean(self):
-        self.clean_expiration()
-        return super().clean()
+        cleaned_data = super().clean()
+        self.clean_expiration(cleaned_data)
+        return cleaned_data
 
 
 class TicketValidationForm(forms.Form):

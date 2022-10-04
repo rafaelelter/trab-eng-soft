@@ -45,7 +45,7 @@
             <a class="btn btn-outline-primary" href="{% url 'edit_ticket' ticket.pk %}">Editar</a>
             <a class="btn btn-outline-danger" href="{% url 'delete_ticket' ticket.pk %}">Excluir</a>
             {% endif %}
-            {% if ticket.offerer.user == user and not ticket.is_available %}
+            {% if ticket.offerer.user == user and ticket.is_waiting %}
             <a class="btn btn-outline-success" href="{% url 'validate_ticket' %}">Validar</a>
             {% endif %}
             {% if user.profile.is_buyer and ticket.is_available %}
