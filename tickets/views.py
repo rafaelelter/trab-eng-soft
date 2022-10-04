@@ -230,11 +230,12 @@ def purchase_ticket(request, pk):
         if form.is_valid():
             expiration_date = form.cleaned_data["expiration_date"]
             expiration_time = form.cleaned_data["expiration_time"]
-            expiration = datetime.combine(expiration_date, expiration_time, tzinfo=pytz.timezone("America/Sao_Paulo"))
-            expiration = expiration.replace(tzinfo=None)
+            if expiration_date is not None and expiration_time is not None:
+                expiration = datetime.combine(expiration_date, expiration_time, tzinfo=pytz.timezone("America/Sao_Paulo"))
+                expiration = expiration.replace(tzinfo=None)
+            else:
+                expiration = None
 
-            if expiration < datetime.now(): # Possível bug aqui, diferença entre fuso do servidor e do cliente
-                form = TicketPurchaseForm(instance=ticket, error="Expiration date must be in the future")
 
             ticket.buyer = request.user.profile
             ticket.expiration = expiration

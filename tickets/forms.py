@@ -134,8 +134,11 @@ class TicketPurchaseForm(forms.ModelForm):
     def clean_expiration(self, cleaned_data):
         expiration_date = self.cleaned_data["expiration_date"]
         expriration_time = self.cleaned_data["expiration_time"]
-        expiration = datetime.datetime.combine(expiration_date, expriration_time, tzinfo=pytz.timezone("America/Sao_Paulo"))
-        if expiration < datetime.datetime.now(tz=pytz.timezone("America/Sao_Paulo")):
+        if expiration_date and expriration_time:
+            expiration = datetime.datetime.combine(expiration_date, expriration_time, tzinfo=pytz.timezone("America/Sao_Paulo"))
+            if expiration < datetime.datetime.now(tz=pytz.timezone("America/Sao_Paulo")):
+                raise ValidationError("Data de expiração inválida")
+        elif expiration_date or expriration_time:
             raise ValidationError("Data de expiração inválida")
 
     def clean(self):
