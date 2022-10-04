@@ -150,13 +150,13 @@ class Ticket(models.Model):
         return "Aguardando retirada"
 
     def is_available(self):
-        self.status == "Disponível"
+        return self.status == "Disponível"
 
     def is_expired(self):
-        self.status == "Expirado"
+        return self.status == "Expirado"
 
     def is_waiting(self):
-        self.status == "Aguardando retirada"
+        return self.status == "Aguardando retirada"
 
     def is_used(self):
-        self.status == "Utilizado"
+        return self.status == "Utilizado"
