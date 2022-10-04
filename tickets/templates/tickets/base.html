@@ -47,6 +47,7 @@
 
               {% if user.profile.is_approved_offerer %}
               <a class="nav-item nav-link" href="{% url 'create_ticket' %}">Criar ticket</a>
+              <a class="nav-item nav-link" href="{% url 'validate_ticket' %}">Validar ticket</a>
               {% endif %}
             </div>
             <!-- Navbar Right Side -->
@@ -67,6 +68,7 @@
     <main role="main" class="container">
         <div class="row">
           <div class="col-md-8">
+            {% include 'tickets/includes/messages.html' %}
             {% block content %}{% endblock %}
           </div>
         </div>

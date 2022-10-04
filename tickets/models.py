@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.urls import reverse
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -5,9 +6,13 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
 from io import BytesIO
 from PIL import Image
+import random
+import string
+from datetime import datetime
+import pytz
 
 from .validators import cep_validator, phone_validator, is_offerer, is_regulator
-
+from django.core.exceptions import ValidationError
 
 class Address(models.Model):
     cep = models.CharField(max_length=9, validators=[cep_validator])
@@ -87,7 +92,19 @@ class Profile(models.Model):
         raise NotImplementedError("Only buyers and offerers can list tickets")
 
 
+def random_id_generator(size=8, chars=string.digits):
+    random_id = "".join(random.choice(chars) for _ in range(size))
+    while Ticket.objects.filter(random_id=random_id, validated=False).exists():
+        random_id = "".join(random.choice(chars) for _ in range(size))
+    return random_id
+
+def validate_random_id(random_id):
+    qs = Ticket.objects.filter(random_id=random_id, validated=False)
+    if not qs.exists():
+        raise ValidationError("Ticket inválido")
+
 class Ticket(models.Model):
+    random_id = models.CharField(default=random_id_generator, blank=False, null=True, max_length=8)
     offerer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="offers")
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -121,5 +138,26 @@ class Ticket(models.Model):
         self.picture = 'default_ticket.png' # set default image
         self.save()
 
+    @property
+    def status(self):
+        if not self.buyer:
+            return "Disponível"
+        elif self.buyer:
+            if self.expiration:
+                if self.expiration < datetime.now(tz=pytz.timezone("America/Sao_Paulo")):
+                    return "Expirado"
+            return "Aguardando retirada"
+        else:
+            return "Utilizado"
+
     def is_available(self):
-        return not self.buyer
+        self.status == "Disponível"
+
+    def is_expired(self):
+        self.status == "Expirado"
+
+    def is_waiting(self):
+        self.status == "Aguardando retirada"
+
+    def is_used(self):
+        self.status == "Utilizado"

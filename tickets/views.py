@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib import messages
 
 from .forms import (
     SignupForm,
@@ -16,6 +17,8 @@ from .models import OffererApproval, Profile, Ticket
 
 import requests
 import json
+from datetime import datetime, timezone
+import pytz
 
 def home(request):
     return render(request, "tickets/home.html")
@@ -72,6 +75,8 @@ def signup_offerer(request):
             )
             login(request, authenticated_user)
 
+            messages.success(request, "Bem-vindo!")
+
             return redirect("tickets-home")
     else:
         user_form = SignupForm()
@@ -110,6 +115,9 @@ def signup_buyer(request):
                 password=user_form.cleaned_data["password1"],
             )
             login(request, user)
+
+            messages.success(request, "Bem-vindo!")
+
             return redirect("tickets-home")
     else:
         user_form = SignupForm()
@@ -158,6 +166,9 @@ def create_ticket(request):
             ticket = form.save(commit=False)
             ticket.offerer = request.user.profile
             ticket.save()
+
+            messages.success(request, "Ticket criado!")
+
             return redirect("tickets-home")
     else:
         form = CreateTicketForm()
@@ -180,6 +191,7 @@ def edit_ticket(request, pk):
         form = CreateTicketForm(request.POST, request.FILES, instance=ticket)
         if form.is_valid():
             form.save()
+            messages.success(request, "Ticket editado!")
             return redirect("profile", pk=request.user.profile.pk)
     else:
         form = CreateTicketForm(instance=ticket)
@@ -193,6 +205,7 @@ def delete_ticket(request, pk):
         return redirect("tickets-home")
     ticket.set_picture_default()
     ticket.delete()
+    messages.success(request, "Ticket deletado!")
     return redirect("profile", pk=request.user.profile.pk)
 
 
@@ -215,8 +228,20 @@ def purchase_ticket(request, pk):
     if request.method == "POST":
         form = TicketPurchaseForm(request.POST, instance=ticket)
         if form.is_valid():
+            expiration_date = form.cleaned_data["expiration_date"]
+            expiration_time = form.cleaned_data["expiration_time"]
+            expiration = datetime.combine(expiration_date, expiration_time, tzinfo=pytz.timezone("America/Sao_Paulo"))
+            expiration = expiration.replace(tzinfo=None)
+
+            if expiration < datetime.now(): # Possível bug aqui, diferença entre fuso do servidor e do cliente
+                form = TicketPurchaseForm(instance=ticket, error="Expiration date must be in the future")
+
             ticket.buyer = request.user.profile
+            ticket.expiration = expiration
             ticket.save()
+            
+            messages.success(request, "Ticket Comprado! Número de resgate: {}".format(ticket.random_id))
+
             return redirect("profile", pk=request.user.profile.pk)
     else:
         form = TicketPurchaseForm(instance=ticket)
@@ -245,34 +270,29 @@ def delete_offerer(request, pk):
     
     return redirect("tickets-home")
 
-def validate_ticket(request, pk):
-    ticket = get_object_or_404(Ticket, pk=pk)
-    if ticket.buyer is None:
-        return redirect("tickets-home")
+def validate_ticket(request):
+    
+    if request.method == "POST":
+        form = TicketValidationForm(request.POST)
+        if form.is_valid():
+            random_id = form.cleaned_data["random_id"]
+            password = form.cleaned_data["password"]
+            ticket = get_object_or_404(Ticket, random_id=random_id, validated=False)
 
-    if ticket.offerer != request.user.profile:
-        return redirect("tickets-home")
-
-    if not ticket.password:
-        ticket.validated = True
-        ticket.save()
+            if password == ticket.password:
+                ticket.validated = True
+                ticket.save()
+                
+                messages.success(request, "Ticket Validado!")
+                
+                return redirect("profile", pk=request.user.profile.pk)
+            else:
+                form.add_error("password", "Senha errada")
     else:
-        if request.method == "POST":
-            form = TicketValidationForm(request.POST)
-            if form.is_valid():
-                password = form.cleaned_data["password"]
-                if password == ticket.password:
-                    ticket.validated = True
-                    ticket.save()
-                    return redirect("profile", pk=request.user.profile.pk)
-                else:
-                    form.add_error("password", "Senha errada")
-        else:
-            form = TicketValidationForm()
+        form = TicketValidationForm()
         
-        context = {"form": form}
-        return render(request, "tickets/ticket_validation.html", context)
-    return redirect("profile", pk=request.user.profile.pk)
+    context = {"form": form}
+    return render(request, "tickets/ticket_validation.html", context)
 
 def search_offerer_map(request):
     profiles = Profile.objects.filter(user_type="O")

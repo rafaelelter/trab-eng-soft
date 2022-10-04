@@ -8,7 +8,7 @@
     {% else %}
     <h1>{{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
     {% endif %}
-    {% if profile.is_buyer or profile.is_offerer %}
+    {% if not profile.is_regulator or user != profile.user %}
     <h2>{% if profile.user == user %}Meus {% endif %}Tickets</h2>
     <table class="table">
       <thead>
@@ -38,21 +38,15 @@
             {% endif %}
           </td>
           <td>
-            {% if not ticket.buyer %}
-              Disponível
-            {% elif not ticket.validated %}
-              Aguardando utilização
-            {% else %}
-              Utilizado
-            {% endif %}
+            {{ ticket.status }}
           </td>
           <td>
             {% if ticket.offerer.user == user and ticket.is_available %}
             <a class="btn btn-outline-primary" href="{% url 'edit_ticket' ticket.pk %}">Editar</a>
             <a class="btn btn-outline-danger" href="{% url 'delete_ticket' ticket.pk %}">Excluir</a>
             {% endif %}
-            {% if ticket.offerer.user == user and not ticket.is_available and not ticket.validated %}
-            <a class="btn btn-outline-success" href="{% url 'validate_ticket' ticket.pk %}">Validar</a>
+            {% if ticket.offerer.user == user and not ticket.is_available %}
+            <a class="btn btn-outline-success" href="{% url 'validate_ticket' %}">Validar</a>
             {% endif %}
             {% if user.profile.is_buyer and ticket.is_available %}
               <a class="btn btn-outline-success" href="{% url 'purchase_ticket' ticket.pk %}">Comprar</a>

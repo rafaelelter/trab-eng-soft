@@ -1,9 +1,13 @@
+import datetime
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import HiddenInput, PasswordInput
+from django.core.exceptions import ValidationError
 
-from .models import Profile, Address, Ticket
+from .models import Profile, Address, Ticket, validate_random_id
+
+from datetime import timezone
 
 
 class SignupForm(UserCreationForm):
@@ -93,14 +97,48 @@ class CreateTicketForm(forms.ModelForm):
 
 
 class TicketPurchaseForm(forms.ModelForm):
+    expiration_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                "class": "datepicker",
+                "type": "date",
+            },
+        ),
+        required=False,
+    )
+    expiration_time = forms.TimeField(
+        widget=forms.TimeInput(
+            attrs={
+                "class": "timepicker",
+                "type": "time",
+            },
+        ),
+        required=False,
+    )
+
     class Meta:
         model = Ticket
-        fields = ("password", "expiration")
+        fields = ("password", "expiration_date", "expiration_time")
         labels = {
             "password": "Senha",
-            "expiration": "Data de expiração",
+            "expiration_date": "Data de expiração",
+            "expiration_time": "Hora de expiração",
         }
+
+    def clean_expiration(self):
+        expiration_date = self.cleaned_data["expiration_date"]
+        expriration_time = self.cleaned_data["expiration_time"]
+        expiration = datetime.datetime.combine(expiration_date, expriration_time)
+        if expiration < datetime.datetime.now():
+            raise ValidationError("Data de expiração inválida")
+
+    def clean(self):
+        self.clean_expiration()
+        return super().clean()
 
 
 class TicketValidationForm(forms.Form):
-    password = forms.CharField(label="Senha", max_length=100, widget=PasswordInput)
+    random_id = forms.CharField(max_length=8, validators=[validate_random_id])
+    password = forms.CharField(
+        label="Senha", max_length=100, widget=PasswordInput, required=False
+    )
