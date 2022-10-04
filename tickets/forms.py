@@ -6,8 +6,7 @@ from django.forms import HiddenInput, PasswordInput
 from django.core.exceptions import ValidationError
 
 from .models import Profile, Address, Ticket, validate_random_id
-
-from datetime import timezone
+from .validators import description_validator
 
 
 class SignupForm(UserCreationForm):
@@ -94,6 +93,12 @@ class CreateTicketForm(forms.ModelForm):
             "price": "Preço",
             "picture": "Foto",
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        description = cleaned_data.get("description")
+        description_validator(description)        
+        return cleaned_data
 
 
 class TicketPurchaseForm(forms.ModelForm):

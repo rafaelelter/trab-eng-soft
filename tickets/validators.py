@@ -1,6 +1,8 @@
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 
+from .badwords import BAD_WORDS
+
 from datetime import timezone
 
 cep_validator = RegexValidator(
@@ -21,3 +23,9 @@ def is_offerer(self):
 
 def is_regulator(self):
     return self.profile.user_type == "R"
+
+
+def description_validator(description):
+    for word in description.split():
+        if word.lower() in BAD_WORDS:
+            raise ValidationError("Conteúdo impróprio na descrição do ticket!")
